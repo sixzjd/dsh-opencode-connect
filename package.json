@@ -1,0 +1,65 @@
+{
+  "name": "dsh-opencode-connect",
+  "displayName": "OpenCode",
+  "description": "将 OpenCode Zen 的模型接入 DeepSeek Harness — bring OpenCode Zen models into DeepSeek Harness.",
+  "icon": "./assets/icon.svg",
+  "version": "0.1.0",
+  "author": {
+    "name": "Sun Zhengnan"
+  },
+  "keywords": [
+    "dsh-plugin",
+    "deepseek-harness",
+    "opencode",
+    "opencode-zen",
+    "free-models",
+    "model-provider"
+  ],
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": {
+      "default": "./lib/index.js"
+    },
+    "./client": {
+      "default": "./client.js"
+    },
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json"
+  },
+  "files": [
+    "lib",
+    "client.js",
+    "cordis.patch.yml",
+    "locale",
+    "assets",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "dsh": ">=0.2.0-rc.2",
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "license": "MIT",
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-slots"
+      ]
+    }
+  },
+  "peerDependencies": {
+    "@deepseek-ai/dsh-llm": ">=0.2.0-rc.2",
+    "@deepseek-ai/dsh-llm-pi-ai": ">=0.2.0-rc.2",
+    "@earendil-works/pi-ai": ">=0.85.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sixzjd/dsh-opencode-connect.git"
+  }
+}
