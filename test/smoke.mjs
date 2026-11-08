@@ -43,6 +43,21 @@ async function checkAsync(name, fn) {
 }
 
 //#region the built-in roster
+console.log('manifest')
+check('the version is valid semver', async () => {
+  const { readFileSync } = await import('node:fs')
+  const manifest = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'))
+  assert.match(manifest.version, /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/, `not semver: ${manifest.version}`)
+})
+check('the client declares the primitives it renders with', async () => {
+  // `Button` comes from the shared package; requiring it without declaring it
+  // resolves or not depending on the host's module map.
+  const { readFileSync } = await import('node:fs')
+  const manifest = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'))
+  const injected = manifest.dsh?.client?.inject ?? []
+  assert.ok(injected.includes('@deepseek-ai/dsh-client-ui-primitives'), 'dsh.client.inject is missing the primitives package')
+})
+
 console.log('built-in roster')
 check('every row is a free model the upstream still lists', () => {
   // Captured from Zen's own /models on 2026-11-08. A roster row that no longer
