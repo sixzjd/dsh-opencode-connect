@@ -1,5 +1,5 @@
 {
-  "name": "dsh-opencode-connect",
+  "name": "@sixzjd/dsh-opencode-connect",
   "displayName": "OpenCode",
   "description": "将 OpenCode Zen 的模型接入 DeepSeek Harness — bring OpenCode Zen models into DeepSeek Harness.",
   "icon": "./assets/icon.svg",
