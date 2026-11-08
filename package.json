@@ -4,6 +4,9 @@
   "description": "将 OpenCode Zen 的模型接入 DeepSeek Harness — bring OpenCode Zen models into DeepSeek Harness.",
   "icon": "./assets/icon.svg",
   "version": "0.1.0",
+  "scripts": {
+    "test": "node test/smoke.mjs"
+  },
   "author": {
     "name": "Sun Zhengnan"
   },
@@ -34,6 +37,7 @@
     "cordis.patch.yml",
     "locale",
     "assets",
+    "test",
     "README.md",
     "LICENSE"
   ],
