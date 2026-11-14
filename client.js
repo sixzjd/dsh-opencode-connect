@@ -411,10 +411,20 @@ window.__ModuleLoader__.load({
     function apply(ctx) {
       try {
         ctx.slots.inject(SHARED_SECTION_SLOT, () => {
-          let disposeContainer
-          if (!ctx.slots.entries(SHARED_SECTION_SLOT).some((entry) => entry.options?.id === SHARED_SECTION_ID)) {
+          /**
+           * Register the shared block unless a sibling already owns it.
+           *
+           * The registrant OWNS the child declaration `plugin-settings.item`,
+           * and a slot's entries die with its declaration: disposing the owner
+           * collapses that child slot and cascades every sibling's card away
+           * with it. Whichever connector registered the block first therefore
+           * took the whole 《插件设置》 entry — and the other connectors' cards —
+           * down with it when it was disabled.
+           */
+          const registerContainer = () => {
+            if (ctx.slots.entries(SHARED_SECTION_SLOT).some((entry) => entry.options?.id === SHARED_SECTION_ID)) return undefined
             try {
-              disposeContainer = ctx.slots.register({
+              return ctx.slots.register({
                 name: SHARED_SECTION_SLOT,
                 id: SHARED_SECTION_ID,
                 order: SHARED_SECTION_ORDER,
@@ -422,15 +432,26 @@ window.__ModuleLoader__.load({
                 children: { [SHARED_ITEM_SLOT]: { kind: "list", scope: "root" } },
               }, PluginSettingsSection)
             } catch (error) {
+              // A sibling won the race between the check and the register.
               console.error("[dsh-opencode-connect] shared plugin-settings block lost the race; attaching to the winner:", error)
+              return undefined
             }
           }
+          // Depends on the ITEM slot: its declaration epoch is what changes when
+          // an owner collapses, so this re-fires after a recovery.
           const disposeItem = ctx.slots.inject(SHARED_ITEM_SLOT, () => ctx.slots.register({
             name: SHARED_ITEM_SLOT,
             id: SHARED_ITEM_ID,
             order: 40,
           }, OpenCodeCard))
+          let disposeContainer = registerContainer()
+          // Recovery: `settings.section` stays declared by the host, so this
+          // subscription outlives a sibling's collapse and re-adopts the block.
+          const unsubscribe = ctx.slots.subscribe(SHARED_SECTION_SLOT, () => {
+            disposeContainer = registerContainer() ?? disposeContainer
+          })
           return () => {
+            unsubscribe()
             disposeItem()
             disposeContainer?.()
           }
