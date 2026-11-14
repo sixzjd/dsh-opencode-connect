@@ -1,5 +1,5 @@
 window.__ModuleLoader__.load({
-  id: "dsh-opencode-connect",
+  id: "@sixzjd/dsh-opencode-connect",
   factory: (require) => {
     const React = require("react");
     // The plugin page's own primitives: a contributed action is then the same
