@@ -48,15 +48,6 @@ window.__ModuleLoader__.load({
       retry: "重试",
       saved: "已保存",
       failed: "操作失败",
-      updateCheck: "检查更新",
-      updateChecking: "检查中…",
-      updateAvailable: "有新版本",
-      updateCurrent: "已是最新",
-      updateApply: "更新到此版本",
-      updateRunning: "正在更新…",
-      updateLocalCopy: "这个安装来自本地目录，没有可比较的远程仓库。",
-      updateUnknown: "暂时查不到远程状态：",
-      updateDone: "已更新，重启 App 后生效。",
     };
     const en = {
       title: "OpenCode",
@@ -90,15 +81,6 @@ window.__ModuleLoader__.load({
       retry: "Retry",
       saved: "Saved",
       failed: "Action failed",
-      updateCheck: "Check for updates",
-      updateChecking: "Checking…",
-      updateAvailable: "Update available",
-      updateCurrent: "Up to date",
-      updateApply: "Update to this commit",
-      updateRunning: "Updating…",
-      updateLocalCopy: "This install comes from a local path, so there is no remote to compare with.",
-      updateUnknown: "Cannot read the remote right now: ",
-      updateDone: "Updated. Restart the app to load it.",
     };
     const L = typeof navigator !== "undefined" && /^zh/i.test(navigator.language || "") ? zh : en;
 
@@ -301,112 +283,7 @@ window.__ModuleLoader__.load({
     /** Names an existing profile may still declare from before the rename. */
     const LEGACY_PACKAGE_NAMES = ["dsh-opencode-connect"];
 
-    /** The per-process control key for the update route, read once per page. */
-    let updateKeyPromise;
-    function updateKeyOf() {
-      updateKeyPromise ??= fetch(STATUS_PATH)
-        .then((res) => (res.ok ? res.json() : undefined))
-        .then((doc) => (typeof doc?.updateKey === "string" && doc.updateKey !== "" ? doc.updateKey : undefined))
-        .catch(() => {
-          updateKeyPromise = undefined;
-          return undefined;
-        });
-      return updateKeyPromise;
-    }
-
-    /**
-     * Reinstall this package at `spec` through the plugin manager.
-     *
-     * `installBundle` refuses a package that is already present, so an update is
-     * a removal followed by an install pinned to the commit the check resolved.
-     * Doing it over the remote keeps the profile lock, the pnpm run and the
-     * reload lifecycle owned by the one service that already handles them.
-     */
-    async function reinstallThroughManager(manager, spec) {
-      if (manager === undefined) throw new Error("the plugin manager service is unavailable");
-      const removed = await manager.removeBundle(PACKAGE_NAME);
-      if (removed?.ok !== true) throw new Error(removed?.error?.message ?? "the manager refused to remove the package");
-      const installed = await manager.installBundle(spec, {});
-      if (installed?.ok !== true) throw new Error(installed?.error?.message ?? "the manager refused to install the package");
-    }
-
-    /**
-     * The contribution to the plugin page's own detail actions.
-     *
-     * DSH offers "Update" only for official on-demand bundles: the page's
-     * `updateAvailable()` needs a `pkg.installTarget`, which the manager derives
-     * from `OFFICIAL_ON_DEMAND_CATALOG` alone. A bundle installed from
-     * `github:…` never has one, however far behind it is. The page declares
-     * `plugins.detail.actions` for exactly this, so this supplies the button for
-     * its own package and nothing else.
-     */
-    function UpdateActions({ subject, L, manager }) {
-      const pkg = subject?.kind === "bundle" ? subject.pkg : undefined;
-      const mine = (pkg?.name === PACKAGE_NAME || LEGACY_PACKAGE_NAMES.includes(pkg?.name)) && pkg?.installed === true;
-      const [report, setReport] = React.useState(null);
-      const [busy, setBusy] = React.useState(false);
-      const [message, setMessage] = React.useState(null);
-      const alive = React.useRef(true);
-      React.useEffect(() => () => { alive.current = false; }, []);
-
-      const check = React.useCallback(async (force) => {
-        setBusy(true);
-        setMessage(null);
-        try {
-          const key = await updateKeyOf();
-          const res = await fetch(`${UPDATE_PATH}${force ? "?refresh=1" : ""}`, {
-            headers: key === undefined ? {} : { "x-dsh-opencode-connect-key": key },
-          });
-          if (!res.ok) throw new Error(String(res.status));
-          const doc = await res.json();
-          if (alive.current) setReport(doc);
-        } catch (error) {
-          if (alive.current) setReport({ state: "unknown", reason: String(error?.message ?? error) });
-        } finally {
-          if (alive.current) setBusy(false);
-        }
-      }, []);
-
-      React.useEffect(() => {
-        if (mine && report === null && !busy) void check(false);
-      }, [mine, report, busy, check]);
-
-      const apply = React.useCallback(async () => {
-        if (report?.targetSpec === undefined) return;
-        setBusy(true);
-        setMessage(null);
-        try {
-          await reinstallThroughManager(manager, report.targetSpec);
-          if (alive.current) setMessage(L.updateDone);
-        } catch (error) {
-          if (alive.current) setMessage(String(error?.message ?? error));
-        } finally {
-          if (alive.current) setBusy(false);
-        }
-      }, [report, manager, L]);
-
-      if (!mine) return null;
-
-      const state = report?.state;
-      const behind = state === "behind";
-      return h("span", { className: "oc-update-action" },
-        h(Button, {
-          variant: behind ? "primary" : "outline",
-          size: "sm",
-          icon: h(IconRefreshOutlineRegular, { size: 13 }),
-          disabled: busy,
-          "aria-label": behind ? L.updateApply : L.updateCheck,
-          onClick: () => void (behind ? apply() : check(true)),
-        }, busy ? (behind ? L.updateRunning : L.updateChecking) : (behind ? L.updateApply : L.updateCheck)),
-        behind ? h("span", { className: "oc-update-note oc-update-note-info" }, L.updateAvailable) : null,
-        state === "current" ? h("span", { className: "oc-update-note" }, L.updateCurrent) : null,
-        message !== null ? h("span", { className: "oc-update-note" }, message) : null,
-        state === "local-copy" ? h("span", { className: "oc-update-note" }, L.updateLocalCopy) : null,
-        state === "unknown" ? h("span", { className: "oc-update-note" }, `${L.updateUnknown}${report.reason ?? ""}`) : null,
-      );
-    }
-
-    const inject = ["slots", "remote.pluginManager"]
+    const inject = ["slots"]
 
     function apply(ctx) {
       try {
@@ -456,21 +333,6 @@ window.__ModuleLoader__.load({
             disposeContainer?.()
           }
         })
-        // The plugin page's per-package action row. Registered defensively: a
-        // host without this slot must still get the settings card above.
-        try {
-          const manager = ctx.get("remote.pluginManager")
-          const disposeActions = ctx.slots.inject("plugins.detail.actions", () => ctx.slots.register({
-            name: "plugins.detail.actions",
-            id: `${PACKAGE_NAME}-update`,
-            order: 10,
-          }, (props) => h(UpdateActions, { ...props, L, manager })))
-          ctx.effect(() => () => {
-            disposeActions?.()
-          }, "dsh-opencode-connect: plugin page actions")
-        } catch (error) {
-          console.error("[dsh-opencode-connect] could not register the plugin page actions:", error)
-        }
       } catch (error) {
         console.error("[dsh-opencode-connect] could not register the settings card:", error)
       }

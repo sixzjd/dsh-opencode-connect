@@ -3,7 +3,7 @@
   "displayName": "OpenCode",
   "description": "将 OpenCode Zen 的模型接入 DeepSeek Harness — bring OpenCode Zen models into DeepSeek Harness.",
   "icon": "./assets/icon.svg",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "scripts": {
     "test": "node test/smoke.mjs"
   },
