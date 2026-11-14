@@ -8,6 +8,7 @@
  * "requested a free model, was told to top up" was a real, repeated report.
  */
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import {
   FALLBACK_MODELS,
   UPSTREAM,
@@ -21,7 +22,13 @@ let passed = 0
 let failed = 0
 function check(name, fn) {
   try {
-    fn()
+    const result = fn()
+    // An async body returns a promise this harness would otherwise drop: the
+    // rejection escapes as an unhandled one and the check prints "ok" having
+    // asserted nothing. Refuse the shape outright rather than pass silently.
+    if (result !== null && typeof result === 'object' && typeof result.then === 'function') {
+      throw new Error('check() got an async body — use checkAsync() so its rejection is awaited')
+    }
     passed++
     console.log(`  ok  ${name}`)
   } catch (error) {
@@ -44,12 +51,25 @@ async function checkAsync(name, fn) {
 
 //#region the built-in roster
 console.log('manifest')
-check('the version is valid semver', async () => {
+check('the bundle patch quotes a scoped package name', () => {
+  // A scoped name starts with `@`, which YAML reserves: an unquoted
+  // `name: @scope/pkg` is a parse error, and DSH rejects the whole install with
+  // "failed to parse overlay ... bad indentation of a mapping entry".
+  const text = readFileSync(new URL('../cordis.patch.yml', import.meta.url), 'utf8')
+  for (const line of text.split('\n')) {
+    const m = /^\s*name:\s*(.+?)\s*$/.exec(line)
+    if (m === null) continue
+    if (m[1].startsWith('@')) throw new Error(`unquoted scoped name in cordis.patch.yml: ${line.trim()}`)
+  }
+  const manifest = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'))
+  if (!text.includes(`'${manifest.name}'`)) throw new Error(`cordis.patch.yml does not name ${manifest.name} in quotes`)
+})
+await checkAsync('the version is valid semver', async () => {
   const { readFileSync } = await import('node:fs')
   const manifest = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'))
   assert.match(manifest.version, /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/, `not semver: ${manifest.version}`)
 })
-check('the client declares the primitives it renders with', async () => {
+await checkAsync('the client declares the primitives it renders with', async () => {
   // `Button` comes from the shared package; requiring it without declaring it
   // resolves or not depending on the host's module map.
   const { readFileSync } = await import('node:fs')

@@ -8,4 +8,4 @@
 # profile's current default model.
 - insert:
     - id: llm-opencode
-      name: @sixzjd/dsh-opencode-connect
+      name: '@sixzjd/dsh-opencode-connect'
