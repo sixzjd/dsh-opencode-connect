@@ -1,5 +1,7 @@
 # DSH OpenCode Connect（OpenCode 连接器）
 
+[English](./README.en.md) | **简体中文**
+
 把 **OpenCode Zen** 的模型接入 [DeepSeek Harness](https://github.com/deepseek-ai/dsh)（DSH）的社区插件，包括 Zen 的**限时免费模型池**（`*-free`、`big-pickle` 等，无需余额）。
 
 ## 原理
@@ -17,7 +19,10 @@ DSH 的普通配置层无法伪造这些（`user-agent` 是 DSH 的保留归因�
 ## 安装
 
 ```sh
-# 从 GitHub 安装（必须带 github: 前缀，见下方「包名撞车」）
+# 从 npm 安装（推荐，scoped 包）
+dsh plugin --profile web add @sixzjd/dsh-opencode-connect
+
+# 或从 GitHub 安装（钉住 commit 以便复现）
 dsh plugin --profile web add github:sixzjd/dsh-opencode-connect#<commit>
 
 # 或本地目录（开发用，link: 是活符号链接）
@@ -32,9 +37,7 @@ dsh plugin --profile web add "link:/绝对路径/dsh-opencode-connect"
 
 ## 须知
 
-- **包名撞车**：npm 上的 `dsh-opencode-connect` 是另一个人的独立项目（`sanser9`），不是本仓库。
-  本仓库没有发布到 npm，也**不要执行 `npm publish`**（会直接撞名失败）。安装一律用
-  `github:sixzjd/dsh-opencode-connect#<commit>`，并钉住 commit 以便复现。
+- **包名撞车**：无 scope 的 `dsh-opencode-connect` 是另一个人的独立项目（`sanser9`），不是本仓库，也**不要尝试发布到这个包名**（会撞名失败）。本仓库发布在 scoped 包 **`@sixzjd/dsh-opencode-connect`** 下，请按上面的安装命令使用；从 GitHub 安装时建议钉住 commit 以便复现。
 - **免费池是每日额度**：实测 2026-11-08，池子耗尽时每个免费模型都回 `429 / FreeUsageLimitError`，
   `retry-after` 指向次日 UTC 零点（北京时间 08:00），但 `/models` 仍然 200。插件会把这句话翻成
   「免费池今日额度已用尽，约 X 重置」，而不是转述上游那句「请订阅 OpenCode Go」。
