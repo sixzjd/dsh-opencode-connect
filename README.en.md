@@ -1,6 +1,6 @@
 # DSH OpenCode Connect
 
-**简体中文** | [English](./README.en.md)
+[简体中文](./README.md) | **English**
 
 Bring **OpenCode Zen** models into [DSH](https://github.com/deepseek-ai/deepseek-harness) (DSH), including Zen's **limited-time free model pool** (`*-free`, `big-pickle`, etc. — no balance required).
 

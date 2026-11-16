@@ -1,6 +1,6 @@
 # DSH OpenCode Connect（OpenCode 连接器）
 
-[English](./README.en.md) | **简体中文**
+**简体中文** | [English](./README.en.md)
 
 把 **OpenCode Zen** 的模型接入 [DeepSeek Harness](https://github.com/deepseek-ai/dsh)（DSH）的社区插件，包括 Zen 的**限时免费模型池**（`*-free`、`big-pickle` 等，无需余额）。
 
