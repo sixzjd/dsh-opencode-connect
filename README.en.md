@@ -1,5 +1,6 @@
 # DSH OpenCode Connect
 
+[![Awesome DSH Plugin](https://awesome-dsh-plugin.com/badge.svg)](https://awesome-dsh-plugin.com) [![npm version](https://img.shields.io/npm/v/@sixzjd/dsh-opencode-connect)](https://www.npmjs.com/package/@sixzjd/dsh-opencode-connect) [![npm downloads](https://img.shields.io/npm/dm/@sixzjd/dsh-opencode-connect)](https://www.npmjs.com/package/@sixzjd/dsh-opencode-connect) [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [简体中文](./README.md) | **English**
 
 Bring **OpenCode Zen** models into [DSH](https://github.com/deepseek-ai/deepseek-harness) (DSH), including Zen's **limited-time free model pool** (`*-free`, `big-pickle`, etc. — no balance required).

@@ -1,5 +1,6 @@
 # DSH OpenCode Connect（OpenCode 连接器）
 
+[![Awesome DSH Plugin](https://awesome-dsh-plugin.com/badge.svg)](https://awesome-dsh-plugin.com) [![npm version](https://img.shields.io/npm/v/@sixzjd/dsh-opencode-connect)](https://www.npmjs.com/package/@sixzjd/dsh-opencode-connect) [![npm downloads](https://img.shields.io/npm/dm/@sixzjd/dsh-opencode-connect)](https://www.npmjs.com/package/@sixzjd/dsh-opencode-connect) [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 **简体中文** | [English](./README.en.md)
 
 把 **OpenCode Zen** 的模型接入 [DeepSeek Harness](https://github.com/deepseek-ai/dsh)（DSH）的社区插件，包括 Zen 的**限时免费模型池**（`*-free`、`big-pickle` 等，无需余额）。
